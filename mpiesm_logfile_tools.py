@@ -14,6 +14,12 @@ def generate_dataframe_from_mpiesm_logfile(log):
     log_dataframe.set_index(pd.to_datetime(log_dataframe.index), inplace=True)
     return log_dataframe
 
+def generate_table_walltime(log_dataframe):
+    data_dict={log_dataframe.index[i]: (log_dataframe.index[i+1]-log_dataframe.index[i]).total_seconds()/60.
+               for i in range(len(log_dataframe.index)-1)
+               if log_dataframe["State"][i] == " start"}
+    return pd.DataFrame(data=data_dict, index=["Walltime"]).transpose()
+
 def generate_table_time_between_runs(log_dataframe):
     data_dict={log_dataframe.index[i]: (log_dataframe.index[i+1]-log_dataframe.index[i]).total_seconds()/60.
                for i in range(len(log_dataframe.index)-1)
