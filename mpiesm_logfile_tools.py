@@ -25,3 +25,15 @@ def generate_table_time_between_runs(log_dataframe):
                for i in range(len(log_dataframe.index)-1)
                if log_dataframe["State"][i] == " done"}
     return pd.DataFrame(data=data_dict, index=["Time between Run"]).transpose()
+
+def compute_effective_throughput(log_dataframe):
+    starts = log_dataframe[log_dataframe.State == " start"]; ends = log_dataframe[log_dataframe.State == " done"]
+    starts = starts.index.to_datetime().tolist(); ends = ends.index.to_datetime().tolist()
+    starts = starts[:len(ends)]  # FIXME: the needs to be checked in both directions, and always norm to the shorter list
+    diffs = [ends[i] - starts[i] for i in range(len(ends))]
+    average_timedelta = sum(diffs, datetime.timedelta(0)) / len(diffs)
+    DAY = datetime.timedelta(1)
+    throughput = DAY / average_timedelta
+    print("Your run is taking %s on average" % average_timedelta)
+    print("this is an effective throughput of %s simulated runs per day, assuming no queue time" % throughput)
+    return average_timedelta, throughput)
