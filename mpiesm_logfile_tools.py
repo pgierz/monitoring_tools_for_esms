@@ -1,4 +1,5 @@
 import pandas as pd
+import datetime
 
 def generate_dataframe_from_mpiesm_logfile(log):
     log_dataframe = pd.read_table(log,
@@ -26,7 +27,7 @@ def generate_table_time_between_runs(log_dataframe):
                if log_dataframe["State"][i] == " done"}
     return pd.DataFrame(data=data_dict, index=["Time between Run"]).transpose()
 
-def compute_effective_throughput(log_dataframe):
+def compute_effective_throughput(log_dataframe, verbose=True):
     starts = log_dataframe[log_dataframe.State == " start"]; ends = log_dataframe[log_dataframe.State == " done"]
     starts = starts.index.to_datetime().tolist(); ends = ends.index.to_datetime().tolist()
     starts = starts[:len(ends)]  # FIXME: the needs to be checked in both directions, and always norm to the shorter list
@@ -34,6 +35,7 @@ def compute_effective_throughput(log_dataframe):
     average_timedelta = sum(diffs, datetime.timedelta(0)) / len(diffs)
     DAY = datetime.timedelta(1)
     throughput = DAY / average_timedelta
-    print("Your run is taking %s on average" % average_timedelta)
-    print("this is an effective throughput of %s simulated runs per day, assuming no queue time" % throughput)
-    return average_timedelta, throughput)
+    if verbose:
+        print("Your run is taking %s on average" % average_timedelta)
+        print("this is an effective throughput of %s simulated runs per day, assuming no queue time" % throughput)
+    return average_timedelta, throughput
